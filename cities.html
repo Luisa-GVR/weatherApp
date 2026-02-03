@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cities</title>
+  <link rel="stylesheet" href="/src/style.css" />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+</head>
+<body>
+     <div class="app-layout">
+        <!-- Sidebar -->
+            <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-cloud-sun"></i>
+            </div>
+
+            <nav>
+                <ul>
+                <li class="active">
+                    <a href="index.html">
+                    <i class="fa-solid fa-cloud"></i>
+                    <span>Weather</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="cities.html">
+                    <i class="fa-solid fa-city"></i>
+                    <span>Cities</span>
+                    </a>
+                </li>
+                </ul>
+            </nav>
+            </aside>
+
+        <!-- Cities that are inside localstorage -->
+        <main class="content">
+            <h1>Saved Cities</h1>
+            <ul id="cities-list"></ul>
+        </main>
+     </div>
+   
+
+  <script type="module" src="/src/storage.js"></script>
+  <script type="module" src="/src/cities.js"></script>
+</body>
+</html>

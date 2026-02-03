@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/src/style.css" />
+
+  <!-- Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+</head>
+
+<body>
+  <div class="app">
+
+    <div class="loading-overlay" data-loading>
+        <p>Loading weather data… waiting for API response</p>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <i class="fa-solid fa-cloud-sun"></i>
+      </div>
+
+      <nav>
+        <ul>
+          <li class="active">
+            <a href="index.html">
+              <i class="fa-solid fa-cloud"></i>
+              <span>Weather</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="cities.html">
+              <i class="fa-solid fa-city"></i>
+              <span>Cities</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- Search -->
+      <header class="search-bar">
+        <label for="city-search" class="visually-hidden">Search city</label>
+        <input
+          id="city-search"
+          type="text"
+          placeholder="Search for cities"
+          autocomplete="off"
+        />
+
+        <ul class="search-results" data-search-results hidden></ul>
+      </header>
+
+
+      <!-- Current weather -->
+      <section class="current-weather">
+        <div class="current-info">
+            <h1 data-city-name>Loading city…</h1>
+            <p class="rain-chance">
+                Chance of rain: <span data-rain-chance>—</span>%
+            </p>
+            <p class="temperature">
+                <span data-current-temp>—</span>°
+            </p>
+        </div>
+
+        <div class="current-icon">
+          <img data-current-icon alt="Current weather icon" />
+        </div>
+      </section>
+
+      <!-- Hourly forecast -->
+      <section class="hourly-forecast">
+        <h2>Today's Forecast</h2>
+        <ul class="hourly-list" data-hourly-forecast>
+            <li>Loading…</li>
+            <li>Loading…</li>
+            <li>Loading…</li>
+            <li>Loading…</li>
+            <li>Loading…</li>
+        </ul>
+      </section>
+
+      <!-- Conditions -->
+      <section class="air-conditions">
+        <header>
+          <h2>Air Conditions</h2>
+        </header>
+
+        <ul class="conditions-list">
+          <li>
+            <span>Real Feel</span>
+            <strong><span data-feels-like>—</span>°</strong>
+          </li>
+          <li>
+            <span>Wind</span>
+            <strong><span data-wind-speed>—</span> km/h</strong>
+          </li>
+          <li>
+            <span>Chance of Rain</span>
+            <strong><span data-rain-chance>—</span>%</strong>
+          </li>
+          <li>
+            <span>Humidity</span>
+            <strong><span data-humidity>—</span></strong>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <!-- 5 day forecast (Free version...) -->
+    <aside class="weekly-forecast">
+        <h2>5-Day Forecast</h2>
+        <ul data-weekly-forecast>
+            <li>Loading forecast…</li>
+            <li>Loading forecast…</li>
+            <li>Loading forecast…</li>
+            <li>Loading forecast…</li>
+            <li>Loading forecast…</li>
+        </ul>
+
+    </aside>
+
+  </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
