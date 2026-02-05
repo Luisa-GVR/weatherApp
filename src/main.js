@@ -22,49 +22,98 @@ const humidity = document.querySelector("[data-humidity]");
 const searchInput = document.querySelector("#city-search");
 const searchResults = document.querySelector("[data-search-results]");
 
-// Helper function to fetch JSON data with error handling
 
-async function fetchJSON(url) {
-  const res = await fetch(url);
+//Helpers 
 
-  if (!res.ok) {
-    throw new Error(`API error: ${res.status}`);
+
+//Custom error
+
+class UserError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'UserError';
   }
+}
 
-  return res.json();
+// Escape html
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Unification of error handling
+
+function showNotification(message, type = 'info') {
+  if (type === 'error' || type === 'warning') {
+    alert(message);
+  }
+  console.log(`[${type.toUpperCase()}] ${message}`);
 }
 
 
-// City search
+//City validation
+
+function validateCityData(data) {
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new UserError('City not found');
+  }
+ 
+  const city = data[0];
+  if (typeof city !== 'object' || city === null) {
+    throw new Error('Invalid API response');
+  }
+ 
+  const requiredFields = ['lat', 'lon', 'name', 'country'];
+  for (const field of requiredFields) {
+    if (city[field] == null) {
+      throw new Error(`Missing required field: ${field}`);
+    }
+  }
+ 
+  // Type validation
+  if (typeof city.lat !== 'number' || typeof city.lon !== 'number') {
+    throw new Error('Invalid coordinates');
+  }
+ 
+  return city;
+}
+
+
+
+
+// Helper function to fetch JSON data with error handling
+
+async function fetchJSON(url, options = {}) {
+  const res = await fetch(url, options);
+ 
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`);
+  }
+ 
+  return res.json();
+}
+
+// Get coords
+
+
 
 async function getCoordinates(city) {
-  const url = `${BASE_URL}/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`;
+  const url = `${BASE_URL}/geo/1.0/direct?q=${encodeURIComponent(city)}&limit=1&appid=${API_KEY}`;
   const data = await fetchJSON(url);
 
-  if (!data.length) {
-    throw new Error("City not found");
-  }
+  const validatedCity = validateCityData(data);
 
   return {
-    lat: data[0].lat,
-    lon: data[0].lon,
-    name: data[0].name,
-    country: data[0].country
+    lat: validatedCity.lat,
+    lon: validatedCity.lon,
+    name: validatedCity.name,
+    country: validatedCity.country
   };
 }
 
 
-async function searchCities(query, signal) {
-  const url = `${BASE_URL}/geo/1.0/direct?q=${query}&limit=5&appid=${API_KEY}`;
-
-  const res = await fetch(url, { signal });
-
-  if (!res.ok) {
-    throw new Error("City search failed");
-  }
-
-  return res.json();
-}
 
 // Get info functions
 
@@ -81,6 +130,12 @@ async function getForecast(lat, lon) {
 }
 
 
+async function searchCities(query, signal) {
+  const url = `${BASE_URL}/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${API_KEY}`;
+  return fetchJSON(url, { signal }); 
+}
+
+
 // Render functions
 
 function renderCurrentWeather(city, current) {
@@ -89,9 +144,28 @@ function renderCurrentWeather(city, current) {
   feelsLikeEl.textContent = Math.round(current.feels_like);
   windEl.textContent = current.wind_speed;
 
-  const iconCode = current.weather[0].icon;
+  const iconCode = escapeHtml(current.weather[0].icon);
   iconEl.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
   iconEl.hidden = false;
+}
+
+function createHourlyItem(item) {
+  const li = document.createElement("li");
+  
+  const timeP = document.createElement("p");
+  const time = new Date(item.dt * 1000).getHours();
+  timeP.textContent = `${time}:00`;
+  
+  const img = document.createElement("img");
+  const iconCode = escapeHtml(item.weather[0].icon);
+  img.src = `https://openweathermap.org/img/wn/${iconCode}.png`;
+  img.alt = "";
+  
+  const tempP = document.createElement("p");
+  tempP.textContent = `${Math.round(item.main.temp)}°`;
+  
+  li.append(timeP, img, tempP);
+  return li;
 }
 
 
@@ -99,40 +173,39 @@ function renderHourly(list) {
   hourlyList.innerHTML = "";
 
   list.slice(0, 6).forEach(item => {
-    const li = document.createElement("li");
-    const time = new Date(item.dt * 1000).getHours();
-    const icon = item.weather[0].icon;
-
-    li.innerHTML = `
-      <p>${time}:00</p>
-      <img src="https://openweathermap.org/img/wn/${icon}.png" alt="">
-      <p>${Math.round(item.main.temp)}°</p>
-    `;
-
+    const li = createHourlyItem(item);
     hourlyList.appendChild(li);
   });
 }
 
 
+function createWeeklyItem(day, index) {
+  const li = document.createElement('li');
+ 
+  const labelSpan = document.createElement('span');
+  labelSpan.textContent = index === 0 ? "Today" :
+    new Date(day.dt * 1000).toLocaleDateString(undefined, { weekday: "short" });
+ 
+  const img = document.createElement('img');
+  img.src = `https://openweathermap.org/img/wn/${escapeHtml(day.icon)}.png`;
+  img.alt = '';
+ 
+  const tempSpan = document.createElement('span');
+  tempSpan.textContent = `${Math.round(day.temp.max)}° / ${Math.round(day.temp.min)}°`;
+ 
+  li.append(labelSpan, img, tempSpan);
+  return li;
+}
+
 function renderWeekly(days) {
   weeklyList.innerHTML = "";
 
   days.slice(0, 7).forEach((day, index) => {
-    const li = document.createElement("li");
-
-    const label = index === 0
-      ? "Today"
-      : new Date(day.dt * 1000).toLocaleDateString(undefined, { weekday: "short" });
-
-    li.innerHTML = `
-      <span>${label}</span>
-      <img src="https://openweathermap.org/img/wn/${day.icon}.png" alt="">
-      <span>${Math.round(day.temp.max)}° / ${Math.round(day.temp.min)}°</span>
-    `;
-
+    const li = createWeeklyItem(day, index);
     weeklyList.appendChild(li);
   });
 }
+
 
 // Helper to group forecast data by day
 
@@ -171,6 +244,11 @@ async function loadWeather(city) {
   try {
     loadingOverlay.style.display = "grid";
 
+    // Early validation
+    if (!city || typeof city !== 'string' || city.trim().length < 2) {
+      throw new UserError('Please enter a valid city name');
+    }
+
     const { lat, lon, name, country } = await getCoordinates(city);
 
     const [currentData, forecastData] = await Promise.all([
@@ -178,6 +256,7 @@ async function loadWeather(city) {
       getForecast(lat, lon)
     ]);
 
+    // Render current weather
     renderCurrentWeather(`${name}, ${country}`, {
       ...currentData.main,
       feels_like: currentData.main.feels_like,
@@ -185,10 +264,12 @@ async function loadWeather(city) {
       weather: currentData.weather
     });
 
+    // Render forecasts
     renderHourly(forecastData.list);
     const daily = groupForecastByDay(forecastData.list);
     renderWeekly(daily);
 
+    // Update additional weather info
     const first = forecastData.list?.[0];
     if (first) {
       const rainChance = Math.round((first.pop ?? 0) * 100);
@@ -196,31 +277,22 @@ async function loadWeather(city) {
       humidity.textContent = `${first.main.humidity}%`;
     }
 
-    
-
-
   } catch (err) {
-    alert(err.message);
-    console.error(err);
+    // Structured error handling
+    if (err instanceof UserError) {
+      showNotification(err.message, 'warning');
+    } else if (err.name === 'AbortError') {
+      // Silent - intentional cancellation
+      console.log('Request cancelled');
+    } else if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      showNotification('Please check your internet connection', 'error');
+    } else {
+      console.error('Weather load error:', err);
+      showNotification('Unable to load weather data. Please try again.', 'error');
+    }
   } finally {
-      loadingOverlay.style.display = "none";
+    loadingOverlay.style.display = "none";
   }
-}
-
-
-// Initial load
-
-
-const selectedCity = localStorage.getItem("selectedCity");
-const recentCities = JSON.parse(localStorage.getItem("recentCities")) || [];
-
-if (selectedCity) {
-  loadWeather(selectedCity);
-  localStorage.removeItem("selectedCity");
-} else if (recentCities.length) {
-  loadWeather(recentCities[0].name);
-} else {
-  loadWeather("Mexico");
 }
 
 
@@ -236,23 +308,34 @@ function renderSearchResults(cities) {
 
   cities.forEach(city => {
     const li = document.createElement("li");
-
     li.textContent = `${city.name}, ${city.country}`;
-
-    li.addEventListener("click", () => {
-      searchInput.value = `${city.name}, ${city.country}`;
-      searchResults.hidden = true;
-
-      saveCity(city);
-      loadWeather(city.name);
-    });
-
-
+    
+    // Store data in attributes instead of creating event listeners
+    li.dataset.cityName = city.name;
+    li.dataset.country = city.country;
+    
     searchResults.appendChild(li);
   });
 
   searchResults.hidden = false;
 }
+
+// And then delegate a single listener for each result
+
+searchResults.addEventListener("click", (e) => {
+  const li = e.target.closest('li');
+  if (!li) return;
+ 
+  const cityName = li.dataset.cityName;
+  const country = li.dataset.country;
+ 
+  searchInput.value = `${cityName}, ${country}`;
+  searchResults.hidden = true;
+ 
+  saveCity({ name: cityName, country });
+  loadWeather(cityName);
+});
+
 
 let searchTimeout;
 let searchController;
@@ -286,5 +369,21 @@ document.addEventListener("click", (e) => {
     searchResults.hidden = true;
   }
 });
+
+
+
+// Initial load
+
+const selectedCity = localStorage.getItem("selectedCity");
+const recentCities = JSON.parse(localStorage.getItem("recentCities")) || [];
+
+if (selectedCity) {
+  loadWeather(selectedCity);
+  localStorage.removeItem("selectedCity");
+} else if (recentCities.length) {
+  loadWeather(recentCities[0].name);
+} else {
+  loadWeather("Mexico");
+}
 
 highlightActiveNav();
