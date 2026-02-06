@@ -22,6 +22,13 @@ const humidity = document.querySelector("[data-humidity]");
 const searchInput = document.querySelector("#city-search");
 const searchResults = document.querySelector("[data-search-results]");
 
+// Retry handling
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 
 //Helpers 
 
@@ -81,6 +88,47 @@ function validateCityData(data) {
 }
 
 
+// Retry fetcher
+
+async function fetchWithRetry(
+  url,
+  options = {},
+  {
+    retries = 3,
+    delay = 500,
+    retryOn = [429, 500, 502, 503, 504]
+  } = {}
+) {
+  try {
+    return await fetchJSON(url, options);
+  } catch (err) { // Extract status code from error message
+   
+    if (err.name === 'AbortError') throw err;
+
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      throw err;
+    }
+
+    const statusMatch = err.message?.match(/API error: (\d+)/);
+    const status = statusMatch ? Number(statusMatch[1]) : null;
+
+    // No retries left
+    if (retries <= 0) throw err;
+
+    // Retry only with the status code
+    if (status === null || retryOn.includes(status)) {
+      await sleep(delay);
+      return fetchWithRetry(url, options, {
+        retries: retries - 1,
+        delay: delay * 3,
+        retryOn
+      });
+    }
+
+    throw err;
+  }
+}
+
 
 
 // Helper function to fetch JSON data with error handling
@@ -115,24 +163,24 @@ async function getCoordinates(city) {
 
 
 
-// Get info functions
+// Get info functions, added fetchWithRetry
 
 async function getCurrentWeather(lat, lon) {
   const url = `${BASE_URL}/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
-  return fetchJSON(url);
+  return fetchWithRetry(url);
 }
 
 
 
 async function getForecast(lat, lon) {
   const url = `${BASE_URL}/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
-  return fetchJSON(url);
+  return fetchWithRetry(url);
 }
 
 
 async function searchCities(query, signal) {
   const url = `${BASE_URL}/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${API_KEY}`;
-  return fetchJSON(url, { signal }); 
+  return fetchWithRetry(url, { signal }); 
 }
 
 
