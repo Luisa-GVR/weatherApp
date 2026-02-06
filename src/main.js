@@ -28,7 +28,63 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Circuit
 
+const circuitBreaker = {
+  failures: 0,
+  lastFailureTime: null,
+  state: "CLOSED", // CLOSED, OPEN, HALF_OPEN
+}
+
+const CIRCUIT_CONFIG = {
+  failureThreshold: 3,
+  resetTimeout: 5000,
+  coolOffTime: 10000
+}
+
+function canRequest() {
+  if (circuitBreaker.state === "OPEN") {
+    const now = Date.now();
+    if (now - circuitBreaker.lastFailureTime > CIRCUIT_CONFIG.resetTimeout + CIRCUIT_CONFIG.coolOffTime) {
+      circuitBreaker.state = "HALF_OPEN";
+      return true;
+    }
+    return false;
+  }
+
+  return true;
+}
+
+
+// Fetch with circuit breaker
+
+async function fetchWithCircuitBreaker(url, options) {
+  if (!canRequest()) {
+    throw new Error("Circuit breaker open");
+  }
+
+  try {
+    const result = await fetchWithRetry(url, options);
+
+    // Success resets breaker
+    circuitBreaker.failures = 0;
+    circuitBreaker.state = "CLOSED";
+
+    return result;
+  } catch (err) {
+    if (err.name !== "AbortError") {
+      circuitBreaker.failures++;
+      circuitBreaker.lastFailureTime = Date.now();
+
+      if (circuitBreaker.failures >= CIRCUIT_CONFIG.failureThreshold) {
+        circuitBreaker.state = "OPEN";
+        console.warn("Circuit breaker OPEN");
+      }
+    }
+
+    throw err;
+  }
+}
 
 //Helpers 
 
@@ -167,20 +223,20 @@ async function getCoordinates(city) {
 
 async function getCurrentWeather(lat, lon) {
   const url = `${BASE_URL}/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
-  return fetchWithRetry(url);
+  return fetchWithCircuitBreaker(url);
 }
 
 
 
 async function getForecast(lat, lon) {
   const url = `${BASE_URL}/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
-  return fetchWithRetry(url);
+  return fetchWithCircuitBreaker(url);
 }
 
 
 async function searchCities(query, signal) {
   const url = `${BASE_URL}/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${API_KEY}`;
-  return fetchWithRetry(url, { signal }); 
+  return fetchWithCircuitBreaker(url, { signal }); 
 }
 
 
