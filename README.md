@@ -1,6 +1,24 @@
 # Weather App
 
-Weather application built with javascript and vite, using OpenWeather API.
+Weather application that shows current conditions, hourly forecasts, and 5-day outlooks for any city in the world. Built with vanilla JavaScript and Vite, powered by the OpenWeatherMap API.
+
+**[Live Demo](https://weatherappfrontendunison.netlify.app)**
+
+## Screenshots
+
+![Desktop view](./screenshots/desktopWeather.png)
+![Desktop view](./screenshots/desktopCities.png)
+
+![Mobile view](./screenshots/mobileWeather.png)
+![Mobile view](./screenshots/mobileCities.png)
+
+## Features
+
+- Search any city worldwide with autocomplete suggestions
+- Hourly forecast for the rest of the day
+- 5-day weather outlook
+- Travel recommendations based on current conditions
+- Save and manage favorite cities
 
 ## Requirements
 - Node.js
