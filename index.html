@@ -54,14 +54,27 @@
       <!-- Search -->
       <header class="search-bar">
         <label for="city-search" class="visually-hidden">Search city</label>
-        <input
-          id="city-search"
-          type="text"
-          placeholder="Search for cities"
-          autocomplete="off"
-        />
 
-        <ul class="search-results" data-search-results hidden></ul>
+        <div class="search-bar__input-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-bar__icon"></i>
+          <input
+            id="city-search"
+            type="text"
+            placeholder="Search for cities"
+            autocomplete="off"
+            aria-autocomplete="list"
+            aria-controls="search-results-list"
+            aria-expanded="false"
+          />
+        </div>
+
+        <ul
+          class="search-results"
+          id="search-results-list"
+          data-search-results
+          role="listbox"
+          hidden
+        ></ul>
       </header>
 
 
@@ -93,6 +106,17 @@
             <li>Loading…</li>
         </ul>
       </section>
+
+    <!-- Travel Recommendations  -->
+    <section class="recommendations">
+      <header class="recommendations__header">
+        <h2>Travel Recommendations</h2>
+        <span class="recommendations__badge" data-rec-condition>—</span>
+      </header>
+      <ul class="recommendations__list" data-recommendations>
+        <!-- populated by renderRecommendations() -->
+      </ul>
+    </section>
 
       <!-- Conditions -->
       <section class="air-conditions">

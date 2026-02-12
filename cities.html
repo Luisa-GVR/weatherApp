@@ -2,50 +2,72 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Cities</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cities — Weather App</title>
   <link rel="stylesheet" href="/src/style.css" />
-
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   />
 </head>
 <body>
-     <div class="app-layout">
-        <!-- Sidebar -->
-            <aside class="sidebar">
-            <div class="logo">
-                <i class="fa-solid fa-cloud-sun"></i>
-            </div>
+  <div class="app-layout">
 
-            <nav>
-                <ul>
-                <li class="active">
-                    <a href="index.html">
-                    <i class="fa-solid fa-cloud"></i>
-                    <span>Weather</span>
-                    </a>
-                </li>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <i class="fa-solid fa-cloud-sun"></i>
+      </div>
+      <nav>
+        <ul>
+          <li>
+            <a href="index.html">
+              <i class="fa-solid fa-cloud"></i>
+              <span>Weather</span>
+            </a>
+          </li>
+          <li>
+            <a href="cities.html">
+              <i class="fa-solid fa-city"></i>
+              <span>Cities</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
 
-                <li>
-                    <a href="cities.html">
-                    <i class="fa-solid fa-city"></i>
-                    <span>Cities</span>
-                    </a>
-                </li>
-                </ul>
-            </nav>
-            </aside>
+    <!-- Cities content -->
+    <main class="cities-content">
 
-        <!-- Cities that are inside localstorage -->
-        <main class="content">
-            <h1>Saved Cities</h1>
-            <ul id="cities-list"></ul>
-        </main>
-     </div>
-   
+      <header class="cities-header">
+        <h1 class="cities-title">
+          <i class="fa-solid fa-city"></i>
+          My Cities
+        </h1>
+        <p class="cities-subtitle">Click a city to view its weather</p>
+      </header>
 
-  <script type="module" src="/src/storage.js"></script>
+      <!-- Favorites -->
+      <section id="favorites-section" hidden>
+        <h2 class="cities-section-label">
+          <i class="fa-solid fa-star"></i>
+          Favorites
+        </h2>
+        <ul id="favorites-list" class="cities-list"></ul>
+      </section>
+
+      <!-- Recent -->
+      <section id="recent-section">
+        <h2 class="cities-section-label">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          Recent
+        </h2>
+        <ul id="recent-list" class="cities-list"></ul>
+      </section>
+
+    </main>
+  </div>
+
   <script type="module" src="/src/cities.js"></script>
 </body>
 </html>

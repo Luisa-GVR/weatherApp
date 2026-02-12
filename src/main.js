@@ -1,5 +1,6 @@
 import { saveCity, getSavedCities } from "./storage.js";
 import { highlightActiveNav } from "./ui.js";
+import { renderRecommendations } from "./recommendations.js";
 
 // Load API key from environment variables
 
@@ -21,6 +22,8 @@ const windEl = document.querySelector("[data-wind-speed]");
 const humidity = document.querySelector("[data-humidity]");
 const searchInput = document.querySelector("#city-search");
 const searchResults = document.querySelector("[data-search-results]");
+const recConditionBadge = document.querySelector("[data-rec-condition]");
+
 
 // Retry handling
 
@@ -368,6 +371,14 @@ async function loadWeather(city) {
       weather: currentData.weather
     });
 
+    // Render recommendations
+    renderRecommendations(currentData.weather[0]);
+
+    if (recConditionBadge) {
+      recConditionBadge.textContent = currentData.weather[0].main;
+    }
+
+
     // Render forecasts
     renderHourly(forecastData.list);
     const daily = groupForecastByDay(forecastData.list);
@@ -402,40 +413,113 @@ async function loadWeather(city) {
 
 // Searchbar
 
+const VALID_CITY_RE = /[a-zA-ZÀ-ÖØ-öø-ÿ]/;
+
+function validateSearchQuery(query) {
+  if (!query || query.trim().length === 0) {
+    return "Please enter a city name.";
+  }
+
+  if (query.trim().length < 2) {
+    return "Name is too short — type at least 2 characters.";
+  }
+
+  if (!VALID_CITY_RE.test(query)) {
+    return "Invalid input — city names must contain letters.";
+  }
+
+  return null;
+}
+
+// Helpers de construcción html para renderSearchResults y renderSearchMessage
+
+function createResultItem(city) {
+  const li = document.createElement("li");
+  li.className = "search-results__item";
+  li.setAttribute("role", "option");
+  li.dataset.cityName = city.name;
+  li.dataset.country = city.country;
+
+  const icon = document.createElement("i");
+  icon.className = "fa-solid fa-location-dot search-results__dot";
+
+  const name = document.createElement("span");
+  name.className = "search-results__name";
+  name.textContent = city.name;          // textContent = XSS safe, no necesitas escapeHtml
+
+  const country = document.createElement("span");
+  country.className = "search-results__country";
+  country.textContent = city.country;
+
+  li.append(icon, name, country);
+  return li;
+}
+
+function createMessageItem(text, type) {
+  const iconMap = {
+    empty:      "fa-circle-question",
+    error:      "fa-triangle-exclamation",
+    validation: "fa-circle-info",
+  };
+
+  const li = document.createElement("li");
+  li.className = `search-results__message search-results__message--${type}`;
+
+  const icon = document.createElement("i");
+  icon.className = `fa-solid ${iconMap[type]}`;
+
+  const span = document.createElement("span");
+  span.textContent = text;
+
+  li.append(icon, span);
+  return li;
+}
+
 function renderSearchResults(cities) {
   searchResults.innerHTML = "";
+  searchInput.setAttribute("aria-expanded", "false");
 
   if (!cities.length) {
-    searchResults.hidden = true;
+    renderSearchMessage("No cities found.", "empty");
     return;
   }
 
-  cities.forEach(city => {
-    const li = document.createElement("li");
-    li.textContent = `${city.name}, ${city.country}`;
-    
-    // Store data in attributes instead of creating event listeners
-    li.dataset.cityName = city.name;
-    li.dataset.country = city.country;
-    
-    searchResults.appendChild(li);
-  });
+  const fragment = document.createDocumentFragment();
+  cities.forEach(city => fragment.appendChild(createResultItem(city)));
+  searchResults.appendChild(fragment);
 
   searchResults.hidden = false;
+  searchInput.setAttribute("aria-expanded", "true");
 }
+
+/* Dropdown on search */
+
+function renderSearchMessage(text, type = "empty") {
+  searchResults.innerHTML = "";
+  searchResults.appendChild(createMessageItem(text, type));
+  searchResults.hidden = false;
+  searchInput.setAttribute("aria-expanded", "true");
+}
+
+
+function hideSearchResults() {
+  searchResults.hidden = true;
+  searchInput.setAttribute("aria-expanded", "false");
+}
+
 
 // And then delegate a single listener for each result
 
 searchResults.addEventListener("click", (e) => {
-  const li = e.target.closest('li');
+  const li = e.target.closest("[data-city-name]");
   if (!li) return;
- 
+
   const cityName = li.dataset.cityName;
-  const country = li.dataset.country;
- 
+  const country  = li.dataset.country;
+
   searchInput.value = `${cityName}, ${country}`;
-  searchResults.hidden = true;
- 
+  hideSearchResults();
+
   saveCity({ name: cityName, country });
   loadWeather(cityName);
 });
@@ -450,10 +534,19 @@ searchInput.addEventListener("input", () => {
   clearTimeout(searchTimeout);
   if (searchController) searchController.abort();
 
+  // Changed the hide to better logic
   if (query.length < 2) {
-    searchResults.hidden = true;
+    hideSearchResults();
     return;
   }
+
+  // Validate characters before debouncing
+  const validationError = validateSearchQuery(query);
+  if (validationError) {
+    renderSearchMessage(validationError, "validation");
+    return;
+  }
+
 
   searchTimeout = setTimeout(async () => {
     try {
@@ -463,17 +556,42 @@ searchInput.addEventListener("input", () => {
     } catch (err) {
       if (err.name !== "AbortError") {
         console.error(err);
+        renderSearchMessage("Something went wrong. Try again.", "error");
       }
     }
   }, 300);
 });
 
-document.addEventListener("click", (e) => {
-  if (!e.target.closest(".search-bar")) {
-    searchResults.hidden = true;
+// Validate on enter
+
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+
+  const query = searchInput.value.trim();
+  const validationError = validateSearchQuery(query);
+
+  if (validationError) {
+    renderSearchMessage(validationError, "validation");
+    // Shake the input to give tactile feedback
+    searchInput.classList.add("search-bar__input--shake");
+    searchInput.addEventListener(
+      "animationend",
+      () => searchInput.classList.remove("search-bar__input--shake"),
+      { once: true }
+    );
+    return;
   }
+
+  hideSearchResults();
+  loadWeather(query);
 });
 
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".search-bar")) {
+    hideSearchResults(); //Changed the hide to better logic
+  }
+});
 
 
 // Initial load

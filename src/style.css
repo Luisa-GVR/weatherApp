@@ -98,18 +98,132 @@ body {
   gap: 1.5rem;
 }
 
+
+/* Search bar */
+
+.search-bar {
+  position: relative;
+}
+
+.search-bar__input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-bar__icon {
+  position: absolute;
+  left: 1.1rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
 .search-bar input {
   width: 100%;
   background: var(--bg-card);
-  border: none;
-  padding: 0.9rem 1.2rem;
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  padding: 0.9rem 1.2rem 0.9rem 2.6rem;
   border-radius: 999px;
   color: var(--text-main);
+  font-size: 0.925rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
 }
 
 .search-bar input::placeholder {
   color: var(--text-muted);
 }
+
+.search-bar input:focus {
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.08);
+}
+
+
+/* Search result dropdown */
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background: #1a2740;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 0.875rem;
+  list-style: none;
+  z-index: 100;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  padding: 0.3rem;
+}
+
+/* Done correctly */
+
+.search-results__item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.875rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.search-results__item:hover {
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.search-results__dot {
+  color: var(--accent);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.search-results__name {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.search-results__country {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+
+/* Errors and validation */
+
+
+.search-results__message {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 0.875rem;
+  font-size: 0.875rem;
+  border-radius: 0.6rem;
+  cursor: default;
+}
+
+.search-results__message--empty {
+  color: var(--text-muted);
+}
+
+.search-results__message--validation {
+  color: #fbbf24;
+}
+
+.search-results__message--error {
+  color: #f87171;
+}
+
+.search-results__message i {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
 
 /* Current weather */
 .current-weather {
@@ -256,12 +370,348 @@ body {
 
 /* Cities Page */
 
-#cities-list li {
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
+
+.app-layout {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  min-height: 100vh;
+  gap: 1.5rem;
+  padding: 1.5rem;
 }
 
-#cities-list li:hover {
-  background: var(--bg-hover);
+.cities-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 640px;
+  padding-top: 0.5rem;
+}
+
+/* Header */
+
+.cities-header {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.cities-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-main);
+}
+
+.cities-title i {
+  color: var(--accent);
+  font-size: 1.4rem;
+}
+
+.cities-subtitle {
+  margin-top: 0.3rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Section labels */
+
+.cities-section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.cities-section-label i {
+  font-size: 0.7rem;
+}
+
+/* Cities list */
+
+.cities-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* City card */
+
+.city-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border-radius: 1rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.07);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.city-card:hover {
+  background: var(--bg-soft);
+  border-color: rgba(56, 189, 248, 0.15);
+  transform: translateX(2px);
+}
+
+/* Removing animation */
+
+.city-card--removing {
+  animation: card-remove 0.25s ease forwards;
+}
+
+@keyframes card-remove {
+  to {
+    opacity: 0;
+    transform: translateX(16px);
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+    border-width: 0;
+  }
+}
+
+/* Empty state */
+
+.city-card--empty {
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 1.5rem;
+  border-style: dashed;
+  cursor: default;
+}
+
+.city-card--empty:hover {
+  transform: none;
+  background: var(--bg-card);
+  border-color: rgba(148, 163, 184, 0.07);
+}
+
+/* Card info */
+
+.city-card__info {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+}
+
+.city-card__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 0.6rem;
+  background: rgba(56, 189, 248, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--accent);
+  font-size: 0.9rem;
+  transition: background 0.15s ease;
+}
+
+.city-card:hover .city-card__icon {
+  background: rgba(56, 189, 248, 0.18);
+}
+
+.city-card__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.city-card__name {
+  font-size: 0.975rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.city-card__country {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* Card action buttons */
+
+.city-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.city-card__btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.city-card__btn:hover {
+  background: rgba(148, 163, 184, 0.1);
+}
+
+/* Favorite button */
+
+.city-card__btn--star:hover {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.city-card__btn--star.is-favorite {
+  color: #f59e0b;
+}
+
+.city-card__btn--star.is-favorite:hover {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+/* Delete button */
+
+.city-card__btn--delete:hover {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+
+/* Recommendations */
+
+
+.recommendations {
+  background: var(--bg-card);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+}
+
+.recommendations__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.recommendations__header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* Condition badge */
+.recommendations__badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--accent);
+  background: rgba(56, 189, 248, 0.1);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+
+/* List */
+.recommendations__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+/* Individual card */
+.rec-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  background: var(--bg-soft);
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.06);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+  animation: rec-in 0.25s ease both;
+}
+
+.rec-card:nth-child(1) { animation-delay: 0ms; }
+.rec-card:nth-child(2) { animation-delay: 60ms; }
+.rec-card:nth-child(3) { animation-delay: 120ms; }
+
+@keyframes rec-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rec-card:hover {
+  border-color: rgba(56, 189, 248, 0.15);
+  transform: translateX(2px);
+}
+
+/* Icon column */
+.rec-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.6rem;
+  background: rgba(56, 189, 248, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--accent);
+  font-size: 0.875rem;
+}
+
+/* Body */
+.rec-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+/* Category pill */
+.rec-card__label {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  width: fit-content;
+
+  background: var(--pill-bg, rgba(56, 189, 248, 0.1));
+  color:      var(--pill-color, #38bdf8);
+}
+
+/* Recommendation text */
+.rec-card__text {
+  font-size: 0.875rem;
+  color: var(--text-main);
+  line-height: 1.45;
 }
