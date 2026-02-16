@@ -6,8 +6,12 @@ Weather application that shows current conditions, hourly forecasts, and 5-day o
 
 ## Screenshots
 
+Desktop
+
 ![Desktop view](./screenshots/desktopWeather.png)
 ![Desktop view](./screenshots/desktopCities.png)
+
+Mobile
 
 ![Mobile view](./screenshots/mobileWeather.png)
 ![Mobile view](./screenshots/mobileCities.png)
