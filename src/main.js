@@ -445,7 +445,7 @@ function createResultItem(city) {
 
   const name = document.createElement("span");
   name.className = "search-results__name";
-  name.textContent = city.name;          // textContent = XSS safe, no necesitas escapeHtml
+  name.textContent = city.name;
 
   const country = document.createElement("span");
   country.className = "search-results__country";

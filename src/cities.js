@@ -110,7 +110,9 @@ function renderCities() {
   if (favorites.length) {
     favoritesSection.hidden = false;
     favoritesList.innerHTML = "";
-    favorites.forEach(city => favoritesList.appendChild(createCityCard(city)));
+    const favFragment = document.createDocumentFragment();
+    favorites.forEach(city => favFragment.appendChild(createCityCard(city)));
+    favoritesList.appendChild(favFragment);
   } else {
     favoritesSection.hidden = true;
   }
@@ -119,7 +121,9 @@ function renderCities() {
   if (recent.length) {
     recentSection.hidden = false;
     recentList.innerHTML = "";
-    recent.forEach(city => recentList.appendChild(createCityCard(city)));
+    const recentFragment = document.createDocumentFragment();
+    recent.forEach(city => recentFragment.appendChild(createCityCard(city)));
+    recentList.appendChild(recentFragment);
   } else {
     recentList.innerHTML = "";
     recentList.appendChild(createEmptyState());
@@ -154,14 +158,13 @@ document.querySelector(".cities-content").addEventListener("click", (e) => {
   }
 
   if (action === "delete") {
-    const card = btn.closest(".city-card");
-    card.classList.add("city-card--removing");
-    card.addEventListener("animationend", () => {
-      deleteCity(name, country);
-      renderCities();
-    }, { once: true });
-  }
-});
+      card.classList.add("city-card--removing");
+      card.addEventListener("animationend", () => {
+        deleteCity(name, country);
+        renderCities();
+      }, { once: true });
+    }
+  });
 
 renderCities();
 highlightActiveNav();

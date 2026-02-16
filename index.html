@@ -3,12 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Weather App</title>
+  <meta name="description" content="Weather forecast application with travel recommendations for cities worldwide" />
+  <title>Weather App - Current Conditions & Forecast</title>
 
   <!-- CSS -->
   <link rel="stylesheet" href="/src/style.css" />
 
   <!-- Icons -->
+  <link
+    rel="preconnect"
+    href="https://cdnjs.cloudflare.com"
+  />
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
@@ -16,6 +21,8 @@
 </head>
 
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
   <div class="app">
 
     <div class="loading-overlay" data-loading>
@@ -23,23 +30,23 @@
     </div>
 
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="logo">
+    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+      <div class="logo" aria-hidden="true">
         <i class="fa-solid fa-cloud-sun"></i>
       </div>
 
       <nav>
         <ul>
           <li class="active">
-            <a href="index.html">
-              <i class="fa-solid fa-cloud"></i>
+            <a href="index.html" aria-current="page">
+              <i class="fa-solid fa-cloud" aria-hidden="true"></i>
               <span>Weather</span>
             </a>
           </li>
 
           <li>
             <a href="cities.html">
-              <i class="fa-solid fa-city"></i>
+              <i class="fa-solid fa-city" aria-hidden="true"></i>
               <span>Cities</span>
             </a>
           </li>
@@ -49,14 +56,14 @@
 
 
     <!-- Main content -->
-    <main class="main">
+    <main class="main" id="main-content" role="main">
 
       <!-- Search -->
       <header class="search-bar">
         <label for="city-search" class="visually-hidden">Search city</label>
 
         <div class="search-bar__input-wrapper">
-          <i class="fa-solid fa-magnifying-glass search-bar__icon"></i>
+          <i class="fa-solid fa-magnifying-glass search-bar__icon" aria-hidden="true"></i>
           <input
             id="city-search"
             type="text"
@@ -79,9 +86,10 @@
 
 
       <!-- Current weather -->
-      <section class="current-weather">
+      <section class="current-weather" aria-labelledby="current-weather-heading">
+        <h1 id="current-weather-heading" class="visually-hidden">Current Weather</h1>
         <div class="current-info">
-            <h1 data-city-name>Loading city…</h1>
+            <h2 data-city-name>Loading city…</h2>
             <p class="rain-chance">
                 Chance of rain: <span data-rain-chance>—</span>%
             </p>
@@ -91,14 +99,14 @@
         </div>
 
         <div class="current-icon">
-          <img data-current-icon alt="Current weather icon" />
+          <img data-current-icon alt="Current weather condition" />
         </div>
       </section>
 
       <!-- Hourly forecast -->
-      <section class="hourly-forecast">
-        <h2>Today's Forecast</h2>
-        <ul class="hourly-list" data-hourly-forecast>
+      <section class="hourly-forecast" aria-labelledby="hourly-heading">
+        <h2 id="hourly-heading">Today's Forecast</h2>
+        <ul class="hourly-list" data-hourly-forecast role="list" aria-label="Hourly forecast">
             <li>Loading…</li>
             <li>Loading…</li>
             <li>Loading…</li>
@@ -108,23 +116,23 @@
       </section>
 
     <!-- Travel Recommendations  -->
-    <section class="recommendations">
+    <section class="recommendations" aria-labelledby="recommendations-heading">
       <header class="recommendations__header">
-        <h2>Travel Recommendations</h2>
-        <span class="recommendations__badge" data-rec-condition>—</span>
+        <h2 id="recommendations-heading">Travel Recommendations</h2>
+        <span class="recommendations__badge" data-rec-condition aria-label="Current weather condition">—</span>
       </header>
-      <ul class="recommendations__list" data-recommendations>
+      <ul class="recommendations__list" data-recommendations role="list" aria-label="Travel recommendations">
         <!-- populated by renderRecommendations() -->
       </ul>
     </section>
 
       <!-- Conditions -->
-      <section class="air-conditions">
+      <section class="air-conditions" aria-labelledby="conditions-heading">
         <header>
-          <h2>Air Conditions</h2>
+          <h2 id="conditions-heading">Air Conditions</h2>
         </header>
 
-        <ul class="conditions-list">
+        <ul class="conditions-list" role="list">
           <li>
             <span>Real Feel</span>
             <strong><span data-feels-like>—</span>°</strong>
@@ -145,21 +153,28 @@
       </section>
     </main>
 
-    <!-- 5 day forecast (Free version...) -->
-    <aside class="weekly-forecast">
-        <h2>5-Day Forecast</h2>
-        <ul data-weekly-forecast>
+    <!-- 5 day forecast -->
+    <aside class="weekly-forecast" aria-labelledby="weekly-heading">
+        <h2 id="weekly-heading">5-Day Forecast</h2>
+        <ul data-weekly-forecast role="list" aria-label="Five day forecast">
             <li>Loading forecast…</li>
             <li>Loading forecast…</li>
             <li>Loading forecast…</li>
             <li>Loading forecast…</li>
             <li>Loading forecast…</li>
         </ul>
-
     </aside>
 
   </div>
 
-    <script type="module" src="/src/main.js"></script>
+  <!-- JavaScript -->
+  <script type="module" src="/src/main.js"></script>
+  
+  <!-- Fallback for users without JavaScript -->
+  <noscript>
+    <div class="noscript-warning">
+      <p>JavaScript is required for this weather application. Please enable JavaScript in your browser.</p>
+    </div>
+  </noscript>
 </body>
 </html>

@@ -3,32 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cities — Weather App</title>
+  <meta name="description" content="Manage your favorite cities and recent weather searches" />
+  <title>My Cities - Weather App</title>
+  
+  <!-- CSS -->
   <link rel="stylesheet" href="/src/style.css" />
+  
+  <!-- Icons -->
+  <link
+    rel="preconnect"
+    href="https://cdnjs.cloudflare.com"
+  />
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   />
 </head>
 <body>
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
   <div class="app-layout">
 
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="logo">
+    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+      <div class="logo" aria-hidden="true">
         <i class="fa-solid fa-cloud-sun"></i>
       </div>
       <nav>
         <ul>
           <li>
             <a href="index.html">
-              <i class="fa-solid fa-cloud"></i>
+              <i class="fa-solid fa-cloud" aria-hidden="true"></i>
               <span>Weather</span>
             </a>
           </li>
-          <li>
-            <a href="cities.html">
-              <i class="fa-solid fa-city"></i>
+          <li class="active">
+            <a href="cities.html" aria-current="page">
+              <i class="fa-solid fa-city" aria-hidden="true"></i>
               <span>Cities</span>
             </a>
           </li>
@@ -37,37 +49,45 @@
     </aside>
 
     <!-- Cities content -->
-    <main class="cities-content">
+    <main class="cities-content" id="main-content" role="main">
 
       <header class="cities-header">
         <h1 class="cities-title">
-          <i class="fa-solid fa-city"></i>
+          <i class="fa-solid fa-city" aria-hidden="true"></i>
           My Cities
         </h1>
         <p class="cities-subtitle">Click a city to view its weather</p>
       </header>
 
       <!-- Favorites -->
-      <section id="favorites-section" hidden>
-        <h2 class="cities-section-label">
-          <i class="fa-solid fa-star"></i>
+      <section id="favorites-section" hidden aria-labelledby="favorites-heading">
+        <h2 id="favorites-heading" class="cities-section-label">
+          <i class="fa-solid fa-star" aria-hidden="true"></i>
           Favorites
         </h2>
-        <ul id="favorites-list" class="cities-list"></ul>
+        <ul id="favorites-list" class="cities-list" role="list" aria-label="Favorite cities"></ul>
       </section>
 
       <!-- Recent -->
-      <section id="recent-section">
-        <h2 class="cities-section-label">
-          <i class="fa-solid fa-clock-rotate-left"></i>
+      <section id="recent-section" aria-labelledby="recent-heading">
+        <h2 id="recent-heading" class="cities-section-label">
+          <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
           Recent
         </h2>
-        <ul id="recent-list" class="cities-list"></ul>
+        <ul id="recent-list" class="cities-list" role="list" aria-label="Recently viewed cities"></ul>
       </section>
 
     </main>
   </div>
 
+  <!-- JavaScript -->
   <script type="module" src="/src/cities.js"></script>
+  
+  <!-- Fallback for users without JavaScript -->
+  <noscript>
+    <div class="noscript-warning">
+      <p>JavaScript is required for this cities manager. Please enable JavaScript in your browser.</p>
+    </div>
+  </noscript>
 </body>
 </html>

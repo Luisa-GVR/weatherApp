@@ -164,6 +164,31 @@ function createRecommendationCard(rec) {
   return li;
 }
 
+function createSkeletonCard() {
+  const li = document.createElement("li");
+  li.className = "rec-card rec-card--skeleton";
+  li.setAttribute("aria-busy", "true");
+  li.setAttribute("aria-label", "Loading recommendation");
+
+  const iconWrap = document.createElement("div");
+  iconWrap.className = "rec-card__icon skeleton-box";
+
+  const body = document.createElement("div");
+  body.className = "rec-card__body";
+
+  const pill = document.createElement("span");
+  pill.className = "rec-card__label skeleton-box";
+  pill.style.width = "60px";
+  pill.style.height = "18px";
+
+  const text = document.createElement("p");
+  text.className = "rec-card__text skeleton-box";
+  text.style.height = "40px";
+
+  body.append(pill, text);
+  li.append(iconWrap, body);
+  return li;
+}
 
 export function renderRecommendationsPlaceholder() {
   const list  = document.querySelector("[data-recommendations]");
